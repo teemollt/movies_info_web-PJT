@@ -10,6 +10,8 @@ class RatingSerializer(serializers.ModelSerializer):
         read_only_fields = ('movie', 'user')
 
 class MymovieSerializer(serializers.ModelSerializer):
+    ratings = RatingSerializer(many=True, read_only=True)
+    rating_count = serializers.IntegerField(source='ratings.count', read_only=True)
 
     class Meta:
         model = Mymovie
@@ -18,13 +20,17 @@ class MymovieSerializer(serializers.ModelSerializer):
 
 
 class MovieSerializer(serializers.ModelSerializer):
-    
+    ratings = RatingSerializer(many=True, read_only=True)
+    rating_count = serializers.IntegerField(source='ratings.count', read_only=True)
+
     class Meta:
         model = Movie
         fields = '__all__'
 
 class MovieListSerializer(serializers.ModelSerializer):
+    ratings = RatingSerializer(many=True, read_only=True)
+    rating_count = serializers.IntegerField(source='ratings.count', read_only=True)
 
     class Meta:
         model = Movie
-        fields = ('poster_path', 'title', )
+        fields = '__all__'
