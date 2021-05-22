@@ -9,9 +9,12 @@ class RatingSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('movie', 'user')
 
-class Mymovie(serializers.ModelSerializer):
+class MymovieSerializer(serializers.ModelSerializer):
 
-    pass
+    class Meta:
+        model = Mymovie
+        fields = '__all__'
+        read_only_fields = ('movie', 'user')
 
 
 class MovieSerializer(serializers.ModelSerializer):

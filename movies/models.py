@@ -33,9 +33,8 @@ class Rating(models.Model):
         return f'{self.user.username}: {self.score}'
 
 class Mymovie(models.Model):
-    movie = movie = models.ForeignKey(
+    movie = models.ForeignKey(
         Movie, on_delete=models.CASCADE, related_name="mymovies")
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="mymovies")
     
-    pass

@@ -7,8 +7,8 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from .models import Movie, Rating
-from .serializers import  MovieSerializer, MovieListSerializer, RatingSerializer
+from .models import Movie, Mymovie, Rating
+from .serializers import  MovieSerializer, MovieListSerializer, RatingSerializer, MymovieSerializer
 from .tmdb import get_movie_json, genres, PAGE_NUM
 
 
@@ -17,7 +17,7 @@ from .tmdb import get_movie_json, genres, PAGE_NUM
 def get_movies(request):
     if request.method == 'GET':
         movies = get_list_or_404(Movie)
-        srz = MovieListSerializer(movies, many=True)
+        srz = MovieSerializer(movies, many=True)
         return Response(srz.data)
   
 @api_view(['POST'])
@@ -52,7 +52,6 @@ def update_movies(request):
                 srz.save()
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
-            
         return Response(status=status.HTTP_201_CREATED, data=f'{PAGE_NUM} 페이지 추가')
 
 @api_view(['POST'])
@@ -66,20 +65,59 @@ def rating(request, movie_id):
         srz.save(movie=movie, user=request.user)
         return Response(srz.data, status=status.HTTP_201_CREATED)
 
-
-def delete_rating(request, rating_pk):
+@api_view(['PUT', 'DELETE'])
+# @authentication_classes([JSONWebTokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def update_rating(request, rating_pk):
     rating = get_object_or_404(Rating, pk=rating_pk)
-    pass
+
+    # 1. 해당 rating작성한 유저가 아닌 경우 수정하거나 삭제하지 못하게
+    if not request.user.ratings.filter(pk=rating_pk).exists():
+        return Response({'detail': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'PUT':
+        serializer = RatingSerializer(rating, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+    elif request.method == 'DELETE':
+        rating.delete()
+        return Response({ 'id': rating_pk }, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])  
+# @authentication_classes([JSONWebTokenAuthentication])
+# @permission_classes([IsAuthenticated]) 
+def get_mymovie(request):
+    if request.method == 'GET':
+        serializer = MymovieSerializer(request.user.mymovies, many=True)
+        return Response(serializer.data)
+
+@api_view(['POST'])  
+# @authentication_classes([JSONWebTokenAuthentication])
+# @permission_classes([IsAuthenticated]) 
+def create_mymovie(request, movie_id):
+    if request.method == 'POST':
+        movie = get_object_or_404(Movie, movie_id=movie_id)
+        serializer = MymovieSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user, movie=movie)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['DELETE'])  
+# @authentication_classes([JSONWebTokenAuthentication])
+# @permission_classes([IsAuthenticated]) 
+def delete_mymovie(request, mymovie_pk):
+    mymovie = get_object_or_404(Mymovie, pk=mymovie_pk)
+    if not request.user.mymovies.filter(pk=mymovie_pk).exists():
+        return Response({'detail': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+    if request.method == 'DELETE':
+        mymovie.delete()
+        return Response({ 'id': mymovie_pk }, status=status.HTTP_204_NO_CONTENT)
     
 
-def get_mymovie(request, mymovie_pk):
-    pass
-
-def create_mymovie(request):
-    pass
-
-def delete_mymovie(request, mymovie_pk):
-    pass
-
 def recommand(request):
+    # 유저가 4점 이상 평점을 준 영화와 찜목록에 넣은 영화 id를 조회해서
+    # 장르별로 딕셔너리에 점수를 부여 가장높은 점수를 받은 장르의 영화를 평점순으로 추천. 
     pass
