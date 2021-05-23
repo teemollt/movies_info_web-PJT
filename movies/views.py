@@ -19,6 +19,13 @@ def get_movies(request):
         movies = get_list_or_404(Movie)
         srz = MovieSerializer(movies, many=True)
         return Response(srz.data)
+
+@api_view(['GET'])
+def movie_detail(request, movie_pk):
+    if request.method == 'GET':
+        movie = get_object_or_404(Movie, pk=movie_pk)
+        srz = MovieSerializer(movie)
+        return Response(srz.data)
   
 @api_view(['POST'])
 def update_movies(request):
@@ -116,10 +123,14 @@ def delete_mymovie(request, mymovie_pk):
         mymovie.delete()
         return Response({ 'id': mymovie_pk }, status=status.HTTP_204_NO_CONTENT)
     
-
+@api_view(['GET'])  
 def recommand(request):
     # 유저가 4점 이상 평점을 준 영화와 찜목록에 넣은 영화 id를 조회해서
     # mymovie 조회
-    mymovie = get_list_or_404(Mymovie, user_id=request.user)
+    mymovies = get_list_or_404(Mymovie, user=request.user)
+    # print('-----------')
+    # print(len(mymovies))
+    # for mymovie in mymovies:
+
     # 장르별로 딕셔너리에 점수를 부여 가장높은 점수를 받은 장르의 영화를 평점순으로 추천. 
-    pass
+    
