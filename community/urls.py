@@ -3,6 +3,9 @@ from . import views
 
 
 urlpatterns = [
-    # path('', views.community),
-    # path('')
+    path('articles/', views.article_list),
+    path('articles/<int:article_pk>/', views.article_detail),
+    path('comments/', views.comment_list),
+    path('articles/<int:article_pk>/comment/', views.create_comment),
+    path('comments/<int:comment_pk>/', views.comment_detail),
 ]

@@ -57,8 +57,8 @@ def update_movies(request):
 @api_view(['POST'])
 # @authentication_classes([JSONWebTokenAuthentication])
 # @permission_classes([IsAuthenticated])
-def rating(request, movie_id):
-    movie = get_object_or_404(Movie, movie_id=movie_id)
+def rating(request, movie_pk):
+    movie = get_object_or_404(Movie, pk=movie_pk)
     # print(movie_id)
     srz = RatingSerializer(data=request.data)
     if srz.is_valid(raise_exception=True):
@@ -97,9 +97,9 @@ def get_mymovie(request):
 @api_view(['POST'])  
 # @authentication_classes([JSONWebTokenAuthentication])
 # @permission_classes([IsAuthenticated]) 
-def create_mymovie(request, movie_id):
+def create_mymovie(request, movie_pk):
     if request.method == 'POST':
-        movie = get_object_or_404(Movie, movie_id=movie_id)
+        movie = get_object_or_404(Movie, pk=movie_pk)
         serializer = MymovieSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user, movie=movie)
