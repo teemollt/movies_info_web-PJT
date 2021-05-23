@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .models import Movie, Mymovie, Rating
-from .serializers import  MovieSerializer, MovieListSerializer, RatingSerializer, MymovieSerializer
+from .serializers import  MovieSerializer, RatingSerializer, MymovieSerializer
 from .tmdb import get_movie_json, genres, PAGE_NUM
 
 
@@ -119,5 +119,7 @@ def delete_mymovie(request, mymovie_pk):
 
 def recommand(request):
     # 유저가 4점 이상 평점을 준 영화와 찜목록에 넣은 영화 id를 조회해서
+    # mymovie 조회
+    mymovie = get_list_or_404(Mymovie, user_id=request.user)
     # 장르별로 딕셔너리에 점수를 부여 가장높은 점수를 받은 장르의 영화를 평점순으로 추천. 
     pass

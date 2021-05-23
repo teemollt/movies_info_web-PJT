@@ -7,7 +7,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('movie', 'user')
+        read_only_fields = ('user')
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -17,7 +17,5 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
-        read_only_fields = ('movie', 'user', 'like_users')
-
-
+        read_only_fields = ('user', 'like_users')
 

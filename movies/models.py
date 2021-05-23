@@ -15,6 +15,9 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 
+    # def natural_key(self):
+    #     return (str(self.user), self.genres)
+
     
 class Rating(models.Model):
     comment = models.CharField(max_length=255)
@@ -38,3 +41,5 @@ class Mymovie(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="mymovies")
     
+class Recommand(models.Model):
+    pass
