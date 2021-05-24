@@ -10,14 +10,18 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from .models import Article, Comment
 from .serializers import  ArticleSerializer, ArticleListSerializer, CommentSerializer
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def article_list(request):
     if request.method == 'GET':
         articles = get_list_or_404(Article)
         serializer = ArticleListSerializer(articles, many=True) 
         return Response(serializer.data)
     
-    elif request.method == 'POST':
+@api_view(['POST'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def article_create(request):
+    if request.method == 'POST':
         serializer = ArticleSerializer(data=request.data)
         # Return a 400 response if the data was invalid.
         if serializer.is_valid(raise_exception=True):
