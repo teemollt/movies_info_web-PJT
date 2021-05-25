@@ -4,10 +4,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 class Movie(models.Model):
-    movie_id = models.IntegerField()
+    # movie_id = models.IntegerField()
     title = models.CharField(max_length=100)
     poster_path = models.CharField(max_length=300)
-    release_date = models.DateField()
+    release_date = models.DateField(blank=True)
     genres = models.CharField(max_length=100)
     popularity = models.IntegerField()
     overview = models.TextField(blank=True)
@@ -20,7 +20,6 @@ class Movie(models.Model):
 
     
 class Rating(models.Model):
-    comment = models.CharField(max_length=255)
     score = models.IntegerField(validators=[
             MaxValueValidator(5),
             MinValueValidator(1)

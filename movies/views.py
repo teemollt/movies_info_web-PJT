@@ -42,7 +42,8 @@ def update_movies(request):
             movie_parsed['title'] = movie['title']
             movie_parsed['overview'] = movie['overview']
             movie_parsed['poster_path'] = f'https://image.tmdb.org/t/p/original{posterpath}'
-            movie_parsed['release_date'] = movie['release_date']
+            if movie['release_date']:
+                movie_parsed['release_date'] = movie['release_date']
             movie_parsed['popularity'] = int(movie['popularity'] * 1000)
             # 장르id(리스트 내 숫자 id 형태)
             genre_id = movie['genre_ids']
@@ -62,8 +63,8 @@ def update_movies(request):
         return Response(status=status.HTTP_201_CREATED, data=f'{PAGE_NUM} 페이지 추가')
 
 @api_view(['POST'])
-# @authentication_classes([JSONWebTokenAuthentication])
-# @permission_classes([IsAuthenticated])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def rating(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
     # print(movie_id)
@@ -94,16 +95,16 @@ def update_rating(request, rating_pk):
 
 
 @api_view(['GET'])  
-# @authentication_classes([JSONWebTokenAuthentication])
-# @permission_classes([IsAuthenticated]) 
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated]) 
 def get_mymovie(request):
     if request.method == 'GET':
         serializer = MymovieSerializer(request.user.mymovies, many=True)
         return Response(serializer.data)
 
 @api_view(['POST'])  
-# @authentication_classes([JSONWebTokenAuthentication])
-# @permission_classes([IsAuthenticated]) 
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated]) 
 def create_mymovie(request, movie_pk):
     if request.method == 'POST':
         movie = get_object_or_404(Movie, pk=movie_pk)
@@ -113,8 +114,8 @@ def create_mymovie(request, movie_pk):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['DELETE'])  
-# @authentication_classes([JSONWebTokenAuthentication])
-# @permission_classes([IsAuthenticated]) 
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated]) 
 def delete_mymovie(request, mymovie_pk):
     mymovie = get_object_or_404(Mymovie, pk=mymovie_pk)
     if not request.user.mymovies.filter(pk=mymovie_pk).exists():

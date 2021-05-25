@@ -32,7 +32,7 @@ def article_create(request):
 @api_view(['DELETE', 'put'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def article_detail(request, article_pk):
+def article_change(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
     if request.method == 'DELETE':
         article.delete()
@@ -55,6 +55,8 @@ def comment_list(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def create_comment(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
     serializer = CommentSerializer(data=request.data)
@@ -65,9 +67,9 @@ def create_comment(request, article_pk):
 @api_view(['DELETE', 'PUT'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def comment_detail(request, comment_pk):
+def comment_change(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
-    
+
     if request.method == 'DELETE':
         comment.delete()
         data = {

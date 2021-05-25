@@ -12,9 +12,21 @@ class RatingSerializer(serializers.ModelSerializer):
         # depth = 1
 
 class MymovieSerializer(serializers.ModelSerializer):
-    # ratings = RatingSerializer(many=True, read_only=True)
-    ratings = serializers.CharField(source='movie.ratings', read_only=True)
-    movie_genre = serializers.CharField(source='movie.genres', read_only=True)
+    ratings = RatingSerializer(many=True, read_only=True)
+    # ratings = serializers.CharField(source='movie.ratings', read_only=True)
+    rating_count = serializers.IntegerField(source='movie.ratings.count', read_only=True)
+    # rating_average = serializers.SerializerMethodField('score_average')
+
+    # def score_average(self, mov):
+    #     cnt = mov.movie.ratings.count()
+    #     score_sum = 0
+    #     if cnt:
+    #         for rating in mov.ratings.all():
+    #             score_sum += rating.score
+    #         rst = round(score_sum/cnt, 2)
+    #     else:
+    #         rst = 0
+    #     return rst
 
     class Meta:
         model = Mymovie
