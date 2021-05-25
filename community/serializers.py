@@ -18,10 +18,12 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = '__all__'
         read_only_fields = ('user',)
+        depth = 1
 
 class ArticleListSerializer(serializers.ModelSerializer):
     comments_count = serializers.IntegerField(source='comments.count', read_only=True)
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'comments_count',)
+        fields = '__all__'
+        read_only_fields = ('user',)

@@ -14,7 +14,7 @@ from .serializers import  ArticleSerializer, ArticleListSerializer, CommentSeria
 def article_list(request):
     if request.method == 'GET':
         articles = get_list_or_404(Article)
-        serializer = ArticleListSerializer(articles, many=True) 
+        serializer = ArticleSerializer(articles, many=True) 
         return Response(serializer.data)
     
 @api_view(['POST'])
@@ -29,15 +29,12 @@ def article_create(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(['DELETE', 'put'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def article_detail(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
-    
-    if request.method == 'GET':
-        serializer = ArticleSerializer(article)
-        return Response(serializer.data)
-
-    elif request.method == 'DELETE':
+    if request.method == 'DELETE':
         article.delete()
         data = {
             'delete': f'데이터 {article_pk}번이 삭제되었습니다.'
@@ -65,15 +62,13 @@ def create_comment(request, article_pk):
         serializer.save(article=article, user=request.user) 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@api_view(['GET', 'DELETE', 'PUT'])
+@api_view(['DELETE', 'PUT'])
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def comment_detail(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
-
-    if request.method == 'GET':
-        serializer = CommentSerializer(comment)
-        return Response(serializer.data)
-
-    elif request.method == 'DELETE':
+    
+    if request.method == 'DELETE':
         comment.delete()
         data = {
             'delete': f'댓글 {comment_pk}번이 삭제되었습니다.'
