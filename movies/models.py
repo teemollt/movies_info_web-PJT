@@ -20,9 +20,9 @@ class Movie(models.Model):
 
     
 class Rating(models.Model):
-    score = models.IntegerField(validators=[
+    score = models.FloatField(validators=[
             MaxValueValidator(5),
-            MinValueValidator(1)
+            MinValueValidator(0.5)
         ])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
