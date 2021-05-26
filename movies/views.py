@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
+from collections import OrderedDict
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -11,6 +11,10 @@ from .models import Movie, Mymovie, Rating
 from .serializers import  MovieSerializer, RatingSerializer, MymovieSerializer
 from .tmdb import get_movie_json, genres, PAGE_NUM
 
+def most_cnt(val):
+    assert isinstance(val, list)
+    if len(val) == 0: return None
+    return Counter(val).most_common(n=1)[0][0]
 
 # Create your views here.
 @api_view(['GET'])
@@ -42,8 +46,7 @@ def update_movies(request):
             movie_parsed['title'] = movie['title']
             movie_parsed['overview'] = movie['overview']
             movie_parsed['poster_path'] = f'https://image.tmdb.org/t/p/original{posterpath}'
-            if movie['release_date']:
-                movie_parsed['release_date'] = movie['release_date']
+            movie_parsed['release_date'] = movie['release_date']
             movie_parsed['popularity'] = int(movie['popularity'] * 1000)
             # 장르id(리스트 내 숫자 id 형태)
             genre_id = movie['genre_ids']
@@ -52,8 +55,9 @@ def update_movies(request):
                 genre_text.append(genres[f'{g}'])
             # print(genre_text)
             # print(genre_id)
-            movie_parsed['genres'] = f'{genre_text}'
-            
+            remove_char = "[]\'"
+            genres_char = ', '.join(x for x in genre_text if x not in remove_char)
+            movie_parsed['genres'] = f'{genres_char}'
             # serializer : save json type data to sqlite
             srz = MovieSerializer(data=movie_parsed)
             if srz.is_valid(raise_exception=True):
@@ -67,10 +71,18 @@ def update_movies(request):
 @permission_classes([IsAuthenticated])
 def rating(request, movie_pk):
     movie = get_object_or_404(Movie, pk=movie_pk)
-    # print(movie_id)
     srz = RatingSerializer(data=request.data)
     if srz.is_valid(raise_exception=True):
         srz.save(movie=movie, user=request.user)
+        if srz.data['score'] >= 4:
+            genres_raw = srz.data['movie_genre']
+            remove_char = "[]\' "
+            genres_char = ''.join(x for x in genres_raw if x not in remove_char)
+            genres_list= genres_char.split(',')
+            print(genres_list)
+            # print(genres_list)
+            # list_g = ['action','adventure','animation','comedy','crime','drama','family','fantasy','history','horror','music','mystery','romance','SF','TV_movie','thriller','war','western']
+
         return Response(srz.data, status=status.HTTP_201_CREATED)
 
 @api_view(['PUT', 'DELETE'])
@@ -124,14 +136,57 @@ def delete_mymovie(request, mymovie_pk):
         mymovie.delete()
         return Response({ 'id': mymovie_pk }, status=status.HTTP_204_NO_CONTENT)
     
-@api_view(['GET'])  
-def recommand(request):
-    # 유저가 4점 이상 평점을 준 영화와 찜목록에 넣은 영화 id를 조회해서
-    # mymovie 조회
-    mymovies = get_list_or_404(Mymovie, user=request.user)
-    # print('-----------')
-    # print(len(mymovies))
-    # for mymovie in mymovies:
-
-    # 장르별로 딕셔너리에 점수를 부여 가장높은 점수를 받은 장르의 영화를 평점순으로 추천. 
     
+@api_view(['GET'])  
+@authentication_classes([JSONWebTokenAuthentication])
+@permission_classes([IsAuthenticated]) 
+def get_recommand(request):
+    # 해당 유저의 선호 장르들 개수 세서 젤 많은거 
+    # 찜한 영화들 장르 가져오기
+    mymovies = Mymovie.objects.filter(user=request.user.id)
+    srz = MymovieSerializer(mymovies, many=True)
+    genre_cnt_list = []
+    for i in range(len(srz.data)):
+        genre_raw = dict(OrderedDict(dict(OrderedDict(srz.data[i]))['movie']))['genres']
+        genre = genre_raw.replace(" ","")
+        g_list = genre.split(',')
+        for j in range(len(g_list)):
+            genre_cnt_list.append(g_list[j])  
+    # genre_cnt_list => 찜한 영화의 장르들 전부 넣은 리스트          
+    # 이제 4점 이상 평점준 영화 장르들 가져오기
+    ratings = Rating.objects.filter(user=request.user.id)
+    srz2 = RatingSerializer(ratings, many=True)
+    # print(srz2.data)
+    genre_raw2 = dict(OrderedDict(srz2.data[0]))['movie_genre']
+    # print(genre_raw2)
+    for i in range(len(srz2.data)):
+        # 4 초과로 점수 준 영화의 장르만 뽑자
+        if (dict(OrderedDict(srz2.data[i]))['score']) > 4:
+            genre_raw2 = dict(OrderedDict(srz2.data[i]))['movie_genre']
+            genre2 = genre_raw2.replace(" ","")
+            g_list2 = genre2.split(',')
+            for j in range(len(g_list2)):
+                genre_cnt_list.append(g_list2[j])  
+    # print(genre_cnt_list)
+    # 카운트 하기
+    genre_name = ['액션','모험','애니메이션','코미디','범죄','다큐멘터리','드라마','가족','판타지',
+        '역사','공포','음악','미스터리','로맨스','SF','TV 영화','스릴러','전쟁','서부']
+    # g_tmp = ""
+    max_cnt = 0
+    # for i in range(len(genre_cnt_list)):
+    #     g_tmp = genre_cnt_list[i]
+    #     cnt_tmp = 0
+    #     for j in range(len(genre_cnt_list)):
+    #         if g_tmp == genre_cnt_list[j]:
+    #             cnt_tmp += 1
+    #     if cnt_tmp >= max_cnt:
+    #         max_cnt = cnt_tmp
+    #         favorite_genre = g_tmp
+    # print(favorite_genre)
+    for gen in genre_name:
+        cnt = genre_cnt_list.count(gen)
+        if cnt >= max_cnt:
+            max_cnt = cnt
+            favorite_genre = gen
+    print(favorite_genre)
+    return Response(favorite_genre)

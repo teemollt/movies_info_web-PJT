@@ -3,7 +3,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import UserSerializer
 
-
 @api_view(['POST'])
 def signup(request):
 	#1-1. Client에서 온 데이터를 받아서

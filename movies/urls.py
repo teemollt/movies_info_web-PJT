@@ -11,5 +11,5 @@ urlpatterns = [
     path('mymovies/', views.get_mymovie),
     path('<int:movie_pk>/create_mymovie/', views.create_mymovie),
     path('<int:mymovie_pk>/delete_mymovie/', views.delete_mymovie),
-    path('recommand/', views.recommand),
+    path('recommand/', views.get_recommand),
 ]
