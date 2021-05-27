@@ -11,10 +11,10 @@ from .models import Movie, Mymovie, Rating
 from .serializers import  MovieSerializer, RatingSerializer, MymovieSerializer
 from .tmdb import get_movie_json, genres, PAGE_NUM
 
-def most_cnt(val):
-    assert isinstance(val, list)
-    if len(val) == 0: return None
-    return Counter(val).most_common(n=1)[0][0]
+# def most_cnt(val):
+#     assert isinstance(val, list)
+#     if len(val) == 0: return None
+#     return Counter(val).most_common(n=1)[0][0]
 
 # Create your views here.
 @api_view(['GET'])
@@ -145,9 +145,11 @@ def get_recommand(request):
     # 찜한 영화들 장르 가져오기
     mymovies = Mymovie.objects.filter(user=request.user.id)
     srz = MymovieSerializer(mymovies, many=True)
+    mymovies_id_list = []
     genre_cnt_list = []
     for i in range(len(srz.data)):
         genre_raw = dict(OrderedDict(dict(OrderedDict(srz.data[i]))['movie']))['genres']
+        mymovies_id_list.append(dict(OrderedDict(dict(OrderedDict(srz.data[i]))['movie']))['id'])
         genre = genre_raw.replace(" ","")
         g_list = genre.split(',')
         for j in range(len(g_list)):
@@ -157,9 +159,11 @@ def get_recommand(request):
     ratings = Rating.objects.filter(user=request.user.id)
     srz2 = RatingSerializer(ratings, many=True)
     # print(srz2.data)
-    genre_raw2 = dict(OrderedDict(srz2.data[0]))['movie_genre']
+    # genre_raw2 = dict(OrderedDict(srz2.data[0]))['movie_genre']
     # print(genre_raw2)
     for i in range(len(srz2.data)):
+        # 내가 평점준 영화(점수 관계없이) id들 담아두기 ( 나중에 추천할때 거르기위해서)
+        mymovies_id_list.append(dict(OrderedDict(srz2.data[i]))['id'])
         # 4 초과로 점수 준 영화의 장르만 뽑자
         if (dict(OrderedDict(srz2.data[i]))['score']) > 4:
             genre_raw2 = dict(OrderedDict(srz2.data[i]))['movie_genre']
@@ -189,4 +193,15 @@ def get_recommand(request):
             max_cnt = cnt
             favorite_genre = gen
     print(favorite_genre)
-    return Response(favorite_genre)
+    movies = get_list_or_404(Movie)
+    movies_srz = MovieSerializer(movies, many=True)
+    # movies_dic = dict(OrderedDict(movies_srz.data))
+    # print(mymovies_id_list)
+    recommand_movies = []
+    for i in range(len(movies_srz.data)):
+        movie = dict(OrderedDict(movies_srz.data[i]))
+        # 선호장르가 포함되면서 이미 찜했거나 점수준 영화는 빼기
+        if favorite_genre in movie['genres'] and movie['id'] not in mymovies_id_list:
+            # print(dict(OrderedDict(movies_srz.data[i]))['title'])
+            recommand_movies.append(movie)
+    return Response(recommand_movies)
