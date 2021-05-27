@@ -14,8 +14,8 @@ class RatingSerializer(serializers.ModelSerializer):
         # depth = 1
 
 class MymovieSerializer(serializers.ModelSerializer):
-    ratings = RatingSerializer(many=True, read_only=True)
-    rating_count = serializers.IntegerField(source='movie.ratings.count', read_only=True)
+    # ratings = RatingSerializer(many=True, read_only=True)
+    # rating_count = serializers.IntegerField(source='movie.ratings.score', read_only=True)
 
     class Meta:
         model = Mymovie
