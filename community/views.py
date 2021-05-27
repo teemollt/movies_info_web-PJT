@@ -8,13 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .models import Article, Comment
-from .serializers import  ArticleSerializer, ArticleListSerializer, CommentSerializer
+from .serializers import  ArticleSerializer, ArticleListSerializer, CommentSerializer, CommentListSerializer
 
 @api_view(['GET'])
 def article_list(request):
     if request.method == 'GET':
         articles = get_list_or_404(Article)
-        serializer = ArticleSerializer(articles, many=True) 
+        serializer = ArticleListSerializer(articles, many=True) 
         return Response(serializer.data)
     
 @api_view(['POST'])
@@ -54,16 +54,18 @@ def article_change(request, article_pk):
 @api_view(['GET'])
 def comment_list(request):
     comments = get_list_or_404(Comment)
-    serializer = CommentSerializer(comments, many=True)
+    serializer = CommentListSerializer(comments, many=True)
     return Response(serializer.data)
 
 @api_view(['POST'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def create_comment(request, article_pk):
+    print('1111')
     article = get_object_or_404(Article, pk=article_pk)
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
+        print('2222')
         serializer.save(article=article, user=request.user) 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
