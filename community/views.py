@@ -29,11 +29,14 @@ def article_create(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['DELETE', 'put'])
+@api_view(['DELETE', 'PUT'])
 @authentication_classes([JSONWebTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def article_change(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
+    if not request.user.articles.filter(pk=article_pk).exists():
+        return Response({'detail': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+    
     if request.method == 'DELETE':
         article.delete()
         data = {
@@ -69,6 +72,8 @@ def create_comment(request, article_pk):
 @permission_classes([IsAuthenticated])
 def comment_change(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
+    if not request.user.comments.filter(pk=comment_pk).exists():
+        return Response({'detail': '권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
 
     if request.method == 'DELETE':
         comment.delete()
