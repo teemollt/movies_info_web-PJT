@@ -163,7 +163,8 @@ def get_recommand(request):
     # print(genre_raw2)
     for i in range(len(srz2.data)):
         # 내가 평점준 영화(점수 관계없이) id들 담아두기 ( 나중에 추천할때 거르기위해서)
-        mymovies_id_list.append(dict(OrderedDict(srz2.data[i]))['id'])
+        mymovies_id_list.append(dict(OrderedDict(srz2.data[i]))['movie_id'])
+        # print(dict(OrderedDict(srz2.data[i]))['movie_id'])
         # 4 초과로 점수 준 영화의 장르만 뽑자
         if (dict(OrderedDict(srz2.data[i]))['score']) > 4:
             genre_raw2 = dict(OrderedDict(srz2.data[i]))['movie_genre']
@@ -202,6 +203,5 @@ def get_recommand(request):
         movie = dict(OrderedDict(movies_srz.data[i]))
         # 선호장르가 포함되면서 이미 찜했거나 점수준 영화는 빼기
         if favorite_genre in movie['genres'] and movie['id'] not in mymovies_id_list:
-            # print(dict(OrderedDict(movies_srz.data[i]))['title'])
             recommand_movies.append(movie)
     return Response(recommand_movies)

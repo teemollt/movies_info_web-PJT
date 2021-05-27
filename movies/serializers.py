@@ -6,6 +6,7 @@ from .models import Movie, Rating, Mymovie
 
 class RatingSerializer(serializers.ModelSerializer):
     movie_genre = serializers.CharField(source='movie.genres', read_only=True)
+    movie_id = serializers.IntegerField(source='movie.id', read_only=True)
     class Meta:
         model = Rating
         fields = '__all__'
