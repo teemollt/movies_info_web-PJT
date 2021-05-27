@@ -118,8 +118,6 @@ LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'Asia/Seoul'
 
-DATETIME_FORMAT = ['%Y.%m.%d %H:%M']
-
 USE_I18N = True
 
 USE_L10N = True

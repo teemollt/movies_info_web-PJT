@@ -28,7 +28,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
-        read_only_fields = ('user', 'created_at')
+        read_only_fields = ('user',)
         depth = 1
 
 class ArticleListSerializer(serializers.ModelSerializer):
@@ -39,3 +39,4 @@ class ArticleListSerializer(serializers.ModelSerializer):
         model = Article
         fields = '__all__'
         read_only_fields = ('user',)
+        depth = 1
