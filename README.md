@@ -5,7 +5,7 @@
 - 김도형 : 백엔드 / 프론트엔드
   - erd 설계
   - django API Server 개발
-  - Vue 데이터 요청 로직 작성
+  - server-client 통신 / state 관리
 - 최준성: 프론트엔드
   - FE 구조 설계
   - UI 디자인
