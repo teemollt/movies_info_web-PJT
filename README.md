@@ -3,9 +3,11 @@
 #### 1. 팀원 정보 및 업무 분담 내역
 
 - 김도형 : 백엔드 / 프론트엔드
-  - erd 설계
-  - django API Server 개발
-  - server-client 통신 / state 관리
+  - 백
+    - erd 설계
+    - django API Server 개발
+  - 프론트
+    - server-client 통신 / state 관리
 - 최준성: 프론트엔드
   - FE 구조 설계
   - UI 디자인
